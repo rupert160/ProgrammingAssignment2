@@ -4,15 +4,24 @@
 ## this create's a matrix object with get/set methods
 
 makeCacheMatrix <- function(x = matrix()) {
+
    ix <- NULL
-   set <- function(y){
-      x <<- y 
-      ix <<- NULL
-   }
+   set <- function(y){ x <<- y ; ix <<- NULL }
    get <- function() x
    setinv <- function(iy) ix <<- iy
    getinv <- function() ix
-   list(set=set, get=get, setinv=setinv, getinv=getinv)
+
+   #extention to assignment - put function within object
+   cacheSolve <- function() {
+      if(!is.null(ix)){
+         message("getting cached data")
+         return(ix)
+      }
+      ix  <<- solve(x)
+      ix
+   }
+
+   list(set=set, get=get, setinv=setinv, getinv=getinv, cacheSolve=cacheSolve)
 }
 
 
@@ -30,14 +39,8 @@ cacheSolve <- function(x, ...) {
    ix
 }
 
-mtx <- matrix(1:4,nrow=2,ncol=2)
-class(mtx)
-imtx <- solve(mtx)
-mtx %*% imtx
-v <- makeVector(c(1,2,3,4))
-m <- cachemean(v)
 mtx3 <- makeCacheMatrix(matrix(1:4,nrow=2,ncol=2))
-mtx3$get()
+mtx3$cacheSolve()
 cacheSolve(mtx3)
 mtx3$get() %*% mtx3$getinv()
 mtx3$get() %*% cacheSolve(mtx3)
